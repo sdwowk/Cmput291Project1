@@ -10,12 +10,13 @@ public class RunRegistraion {
 	/**
 	 * 
 	 */
-	protected static Connection con;
 	private static Console console; 
 	
 	private static DataManager dataManager;
 	private final static List<String> listCommands = new ArrayList<String>();
+	
 	public static void main(String args[]) throws Exception {
+		
 		System.out.println("Welcome to the CMPUT 291 Automobile Registration System");
 				
 		console = System.console();
@@ -25,7 +26,17 @@ public class RunRegistraion {
 		}
 
 		
-		//connectToLab();
+		String username = console.readLine("Please enter your Oracle username: ");
+		char[] password = console.readPassword("Please enter your Oracle password: ");
+		String passw = " ";
+		for(int i = 0; i < password.length; i++){
+			passw = passw + password[i];
+		}
+		
+		passw = passw.trim();
+
+		dataManager = DataManager.getInstance("init");
+		dataManager.initDatabase(username, passw);
 		
 		listCommands.add("search");
 		listCommands.add("new vehicle registration");
@@ -34,7 +45,7 @@ public class RunRegistraion {
 		listCommands.add("license registration");
 		listCommands.add("init");
 		
-		dataManager = DataManager.getInstance("init");
+
 		
 		mainMenu();
 		
@@ -219,40 +230,6 @@ public class RunRegistraion {
 		
 		
 	}
-
-
-	private static void connectToLab() throws Exception {
-		
-		boolean connectionNotMade = true;
-		String driverName = "oracle.jdbc.driver.OracleDriver";
-		Class drvClass = Class.forName(driverName);
-		DriverManager.registerDriver((Driver)drvClass.newInstance());
-		
-		while(connectionNotMade){
-			
-			try{
-				String username = console.readLine("Please enter your Oracle username: ");
-				char[] password = console.readPassword("Please enter your Oracle password: ");
-				String passw = " ";
-				for(int i = 0; i < password.length; i++){
-					passw = passw + password[i];
-				}
-				
-				passw = passw.trim();
-	
-				con = DriverManager.getConnection("jdbc:oracle:thin:@gwynne.cs.ualberta.ca:1521:CRS", username, passw);
-				if(con.equals(null)){
-					System.err.println("connection failed");
-				}
-				connectionNotMade = false;
-			
-			}catch(Exception e){
-				System.err.println(e.toString());
-				System.err.println("failed attempt to connect");
-			}		
-		}
-	}
-
 
 
 }

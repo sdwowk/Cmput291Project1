@@ -1,12 +1,17 @@
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+
 
 public class DataManager {
+	protected Connection con;
+
 	private static DataManager instance;
 	private String state;
 	
 	public static DataManager getInstance(String context) {
 		if(instance == null){
 			instance = new DataManager();
-			instance.initDatabase();
 		}
 		instance.state = context;
 
@@ -16,9 +21,27 @@ public class DataManager {
 	public void changeState(String st){
 		state = st;
 	}
-	private void initDatabase() {
-		// TODO Auto-generated method stub
+	public void initDatabase(String username, String passw) throws Exception {
+		boolean connectionNotMade = true;
+		String driverName = "oracle.jdbc.driver.OracleDriver";
+		Class drvClass = Class.forName(driverName);
+		DriverManager.registerDriver((Driver)drvClass.newInstance());
 		
+		while(connectionNotMade){
+			
+			try{
+
+				con = DriverManager.getConnection("jdbc:oracle:thin:@gwynne.cs.ualberta.ca:1521:CRS", username, passw);
+				if(con.equals(null)){
+					System.err.println("connection failed");
+				}
+				connectionNotMade = false;
+			
+			}catch(Exception e){
+				System.err.println(e.toString());
+				System.err.println("failed attempt to connect");
+			}		
+		}		
 	}
 
 	public void search(String searchRequest) {
