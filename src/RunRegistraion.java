@@ -4,7 +4,6 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -36,6 +35,7 @@ public class RunRegistraion {
 			passw = passw + password[i];
 		}
 		
+		username = username.trim();
 		passw = passw.trim();
 
 		//Initialize database and data manager
@@ -106,7 +106,10 @@ public class RunRegistraion {
 		
 	}
 
-
+	/*	Allows user to enter information about a new owner, and 
+	 *  their vehicle. This produces a string so DataManager can
+	 *  add them to the database.
+	 */
 	private static void newVehicleRegistrationMenu() {
 		while(true){		
 			try{
@@ -171,7 +174,11 @@ public class RunRegistraion {
 		
 	}
 
-
+	/*
+	 * Allows user to enter information about a vehicle transaction, a buyer that
+	 * hasn't been registered in the database and produces errors when a seller
+	 * has not been registered or a vehicle for sale has not been registered.
+	 */
 	private static void autoTransactionMenu() {
 		while(true){
 			try{
@@ -269,6 +276,7 @@ public class RunRegistraion {
 				Date date = new Date();
 				Date endDate = new Date();
 				endDate.setYear(date.getYear() + 5);
+				
 				String licenseInfo = license_no.toString() + "," + driverSIN + "," + license_class + new SimpleDateFormat("dd-mm-yyyy").format(date).toString() + new SimpleDateFormat("dd-mm-yyyy").format(endDate).toString();
 			}catch(Exception e){
 				System.err.println("Error in license registration menu");
