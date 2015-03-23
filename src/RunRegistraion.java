@@ -106,7 +106,7 @@ public class RunRegistraion {
 				if(Owner.split(",").length != 9){
 					throw new Exception("Input invalid. Make sure to separate each entry with a comma!");
 					
-				}else if(dataManager.ownerInDatabase(Owner)== null){
+				}else if(dataManager.personRegistered(Owner)== null){
 					System.out.println("This owner is not in the Database, adding them now.");
 					
 					dataManager.addPerson(Owner);
@@ -173,7 +173,11 @@ public class RunRegistraion {
 				}else if(!dataManager.isVehicleRegistered(vehicleInfo)){
 					System.out.println("Vehicle is not registered, returning to Main Menu.");
 					return;
-				}else{
+				}else if(dataManager.personRegistered(buyerInfo) == null){
+					System.out.println("Buyer is not Registered, returning to Main Menu.");
+					return;
+				}
+				else{
 					String[] ownerInfo = dataManager.getOwnershipInfo(vehicleInfo);
 					dataManager.removeOwners(ownerInfo);
 					Integer transactionID = ((Double)(Math.random() * Math.pow(10, 15))).intValue();

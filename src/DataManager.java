@@ -25,7 +25,7 @@ public class DataManager {
 		
 	}
 
-	public String ownerInDatabase(String licOwner) {
+	public String personRegistered(String licOwner) {
 
 		return null;
 	}
@@ -64,5 +64,6 @@ public class DataManager {
 		// TODO Auto-generated method stub
 		
 	}
+
 
 }
