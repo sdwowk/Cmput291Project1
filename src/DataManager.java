@@ -21,11 +21,13 @@ public class DataManager {
 	public void changeState(String st){
 		state = st;
 	}
-	public void initDatabase(String username, String passw) throws Exception {
+	public void initDatabase(String userInfo) throws Exception {
 		boolean connectionNotMade = true;
 		String driverName = "oracle.jdbc.driver.OracleDriver";
 		Class drvClass = Class.forName(driverName);
 		DriverManager.registerDriver((Driver)drvClass.newInstance());
+		String username = userInfo.split(",")[0];
+		String passw = userInfo.split(",")[1];
 		
 		while(connectionNotMade){
 			
@@ -36,12 +38,16 @@ public class DataManager {
 					System.err.println("connection failed");
 				}
 				connectionNotMade = false;
-			
+				
 			}catch(Exception e){
 				System.err.println(e.toString());
 				System.err.println("failed attempt to connect");
+				userInfo = RunRegistration.getUserInfo();
+				username = userInfo.split(",")[0];
+				passw = userInfo.split(",")[1];
 			}		
 		}		
+		System.out.println("victor");
 	}
 
 	public void search(String searchRequest) {

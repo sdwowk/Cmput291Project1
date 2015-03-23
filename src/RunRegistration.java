@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 
-public class RunRegistraion {
+public class RunRegistration {
 	/**
 	 * 
 	 */
@@ -27,6 +27,7 @@ public class RunRegistraion {
 			System.err.println("Console is null program will not work");
 		}
 
+<<<<<<< HEAD:src/RunRegistraion.java
 		//Gather info required to connect to database and cs server
 		String username = console.readLine("Please enter your Oracle username: ");
 		char[] password = console.readPassword("Please enter your Oracle password: ");
@@ -37,10 +38,14 @@ public class RunRegistraion {
 		
 		username = username.trim();
 		passw = passw.trim();
+=======
+		String userInfo = getUserInfo();
+
+>>>>>>> 4c735df7bb968a48f7dde5385fee9d612aab170d:src/RunRegistration.java
 
 		//Initialize database and data manager
 		dataManager = DataManager.getInstance("init");
-		dataManager.initDatabase(username, passw);
+		dataManager.initDatabase(userInfo);
 		
 		//List of available menu options
 		listCommands.add("search");
@@ -53,6 +58,21 @@ public class RunRegistraion {
 		//Start in the main menu
 		mainMenu();
 		
+	}
+
+
+	public static String getUserInfo() {
+		//Gather info required to connect to database and cs server
+		String username = console.readLine("Please enter your Oracle username: ");
+		char[] password = console.readPassword("Please enter your Oracle password: ");
+		String passw = " ";
+		for(int i = 0; i < password.length; i++){
+			passw = passw + password[i];
+		}
+		
+		passw = passw.trim();
+		
+		return username + " , " + passw;
 	}
 
 
@@ -77,26 +97,26 @@ public class RunRegistraion {
 		command = command.toLowerCase();
 		
 		if(listCommands.contains(command)){
-			switch (command){
-			case "search":	dataManager.changeState("search");
+			if(command.equals("search")) {
+				dataManager.changeState("search");
 				searchMenu();
-				break;
 				
-			case "new vehicle registration":	dataManager.changeState("new vehicle registration");
+			}else if(command.equals("new vehicle registration")){
+				dataManager.changeState("new vehicle registration");
 				newVehicleRegistrationMenu();
-				break;
 			
-			case "violation record": dataManager.changeState("violation record");
+			}else if(command.equals("violation record")){
+				dataManager.changeState("violation record");
 				violationRecordMenu();
-				break;
 			
-			case "auto transaction": dataManager.changeState("auto transaction");
+			}else if((command.equals("auto transaction"))){
+				dataManager.changeState("auto transaction");
 				autoTransactionMenu();
-				break;
-			
-			case "license registration": dataManager.changeState("license registration");
+				
+			}else if(command.equals("license registration")){
+				dataManager.changeState("license registration");
 				licenseRegistratoinMenu();
-				break;
+				
 			}
 				
 		}else{
