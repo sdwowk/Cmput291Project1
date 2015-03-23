@@ -25,7 +25,7 @@ public class RunRegistraion {
 			System.err.println("Console is null program will not work");
 		}
 
-		
+		//Gather info required to connect to database and cs server
 		String username = console.readLine("Please enter your Oracle username: ");
 		char[] password = console.readPassword("Please enter your Oracle password: ");
 		String passw = " ";
@@ -35,9 +35,11 @@ public class RunRegistraion {
 		
 		passw = passw.trim();
 
+		//Initialize database and data manager
 		dataManager = DataManager.getInstance("init");
 		dataManager.initDatabase(username, passw);
 		
+		//List of available menu options
 		listCommands.add("search");
 		listCommands.add("new vehicle registration");
 		listCommands.add("violation record");
@@ -45,8 +47,7 @@ public class RunRegistraion {
 		listCommands.add("license registration");
 		listCommands.add("init");
 		
-
-		
+		//Start in the main menu
 		mainMenu();
 		
 	}
