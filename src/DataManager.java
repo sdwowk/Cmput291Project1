@@ -88,5 +88,10 @@ public class DataManager {
 		
 	}
 
+	public String licenseRegistered(String driverSIN) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 }

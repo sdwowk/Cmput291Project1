@@ -2,7 +2,10 @@ import java.io.Console;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 
@@ -118,7 +121,7 @@ public class RunRegistraion {
 				if(Owner.split(",").length != 9){
 					throw new Exception("Input invalid. Make sure to separate each entry with a comma!");
 					
-				}else if(dataManager.personRegistered(Owner)== null){
+				}else if(dataManager.personRegistered(Owner.split(",")[0])== null){
 					System.out.println("This owner is not in the Database, adding them now.");
 					
 					dataManager.addPerson(Owner);
@@ -186,17 +189,42 @@ public class RunRegistraion {
 					System.out.println("Vehicle is not registered, returning to Main Menu.");
 					return;
 				}else if(dataManager.personRegistered(buyerInfo) == null){
-					System.out.println("Buyer is not Registered, returning to Main Menu.");
-					return;
-				}
-				else{
-					String[] ownerInfo = dataManager.getOwnershipInfo(vehicleInfo);
-					dataManager.removeOwners(ownerInfo);
-					Integer transactionID = ((Double)(Math.random() * Math.pow(10, 15))).intValue();
+					System.out.println("Buyer is not Registered");
 					
-					transactionInfo = transactionID.toString() + ", " + buyerInfo + ", " + sellerInfo;
-					dataManager.addTransaction(transactionInfo);
+					String person = console.readLine("Please enter in the New person's SIN, name, height, weight, eyecolor, hair color, addr, gender, birthday (mm/dd/yyyy): ");
+					
+					if(person.toLowerCase().equals("init")){
+						return;
+					}
+					
+					if(person.split(",").length != 9){
+						throw new Exception("Input invalid. Make sure to separate each entry with a comma!");
+						
+					}						
+					
+					dataManager.addPerson(person);
+										
 				}
+						
+				String[] ownerInfo = dataManager.getOwnershipInfo(vehicleInfo);
+				
+				boolean sellerIsOwner = false;
+				for(int i = 0; i < ownerInfo.length; i++){
+					if(ownerInfo[i].split(",")[0].trim().toLowerCase().equals(sellerInfo.toLowerCase().trim())){
+						sellerIsOwner = true;
+					}
+				}
+				
+				if(!sellerIsOwner){
+					throw new Exception("Seller is not currently an owner!");
+				}
+				
+				dataManager.removeOwners(ownerInfo);
+				Integer transactionID = ((Double)(Math.random() * Math.pow(10, 15))).intValue();
+					
+				transactionInfo = transactionID.toString() + ", " + buyerInfo + ", " + sellerInfo;
+				dataManager.addTransaction(transactionInfo);
+				
 			}catch(Exception e){
 				System.err.println("Exception raised in Auto Transaction");
 				System.err.println(e.toString());
@@ -207,7 +235,46 @@ public class RunRegistraion {
 
 
 	private static void licenseRegistratoinMenu() {
-		// TODO Auto-generated method stub
+		while(true){
+			try{
+				String driverSIN = console.readLine("Please enter the SIN number of the new driver: ");
+				
+				if(driverSIN.toLowerCase().equals("init")){
+					return;
+				}
+				else if(dataManager.personRegistered(driverSIN) == null){
+					System.out.println("Person not registered.");
+									
+					String person = console.readLine("Please enter in the New person's name, height, weight, eyecolor, hair color, addr, gender, birthday (mm/dd/yyyy): ");
+					
+					if(person.toLowerCase().equals("init")){
+						return;
+					}
+					
+					person = driverSIN + "," + person;
+					if(person.split(",").length != 9){
+						throw new Exception("Input invalid. Make sure to separate each entry with a comma!");
+						
+					}						
+					
+					dataManager.addPerson(person);
+										
+				}else if(dataManager.licenseRegistered(driverSIN) != null){
+					throw new Exception("Driver's license already issued to this person");
+				}
+				
+				Integer license_no = ((Double) (Math.random() * Math.pow(10, 9))).intValue();
+				
+				String license_class = console.readLine("please enter license class");
+				Date date = new Date();
+				Date endDate = new Date();
+				endDate.setYear(date.getYear() + 5);
+				String licenseInfo = license_no.toString() + "," + driverSIN + "," + license_class + new SimpleDateFormat("dd-mm-yyyy").format(date).toString() + new SimpleDateFormat("dd-mm-yyyy").format(endDate).toString();
+			}catch(Exception e){
+				System.err.println("Error in license registration menu");
+				System.err.println(e.toString());
+			}
+		}
 		
 	}
 
