@@ -138,11 +138,14 @@ public class RunRegistraion {
 				}
 				else{
 					dataManager.addVehicle(Vehicle);
+					String ownerInfo = Owner.split(",")[0] + "," + Vehicle.split(",")[0] + "," + ownerIsPrime;
+					dataManager.addOwnership(ownerInfo)
+					
 				}
 				
 			}catch(Exception e){
 				System.err.println("Exception thrown in New Vehicle Registration");
-				System.out.println(e.toString());
+				System.err.println(e.toString());
 			}
 		}
 	}
@@ -155,19 +158,36 @@ public class RunRegistraion {
 
 
 	private static void autoTransactionMenu() {
-		System.out.println("You are now in the Auto Transaction Menu: to return enter init");
-		String vehicleInfo = console.readLine("Please enter in the vehicle's Serial No.");
-	
-		if(vehicleInfo.equals("init")){
-			return;
-		}else if(!dataManager.isVehicleRegistered(vehicleInfo)){
-			System.out.println("Vehicle is not registered, returning to Main Menu.");
-			return;
-		}else{
-			String ownerInfo = ;
+		while(true){
+			try{
+				
+				System.out.println("You are now in the Auto Transaction Menu: to return enter init");
+				String vehicleInfo = console.readLine("Please enter in the vehicle's Serial No. : ");
+				String transactionInfo = console.readLine("Please enter the transaction info: date (mm/dd/yyyy), price :");
+				String sellerInfo = console.readLine("Please enter seller's SIN: ");
+				String buyerInfo = console.readLine("Please enter the buyer's SIN: ");
+				
+				
+				if(vehicleInfo.equals("init")){
+					return;
+				}else if(!dataManager.isVehicleRegistered(vehicleInfo)){
+					System.out.println("Vehicle is not registered, returning to Main Menu.");
+					return;
+				}else{
+					String[] ownerInfo = dataManager.getOwnershipInfo(vehicleInfo);
+					dataManager.removeOwners(ownerInfo);
+					Integer transactionID = ((Double)(Math.random() * Math.pow(10, 15))).intValue();
+					
+					transactionInfo = transactionID.toString() + ", " + buyerInfo + ", " + sellerInfo;
+					dataManager.addTransaction(transactionInfo);
+				}
+			}catch(Exception e){
+				System.err.println("Exception raised in Auto Transaction");
+				System.err.println(e.toString());
+			}
 		}
-	
 	}
+	
 
 
 	private static void licenseRegistratoinMenu() {

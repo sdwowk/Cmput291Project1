@@ -45,4 +45,19 @@ public class DataManager {
 		return false;
 	}
 
+	public String[] getOwnershipInfo(String vehicleInfo) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void removeOwners(String[] ownerInfo) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void addTransaction(String transactionInfo) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
