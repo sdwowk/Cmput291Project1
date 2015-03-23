@@ -60,4 +60,9 @@ public class DataManager {
 		
 	}
 
+	public void addOwnership(String ownerInfo) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

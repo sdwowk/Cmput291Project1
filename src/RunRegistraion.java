@@ -139,7 +139,7 @@ public class RunRegistraion {
 				else{
 					dataManager.addVehicle(Vehicle);
 					String ownerInfo = Owner.split(",")[0] + "," + Vehicle.split(",")[0] + "," + ownerIsPrime;
-					dataManager.addOwnership(ownerInfo)
+					dataManager.addOwnership(ownerInfo);
 					
 				}
 				
