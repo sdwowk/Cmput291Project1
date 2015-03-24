@@ -27,25 +27,13 @@ public class RunRegistration {
 			System.err.println("Console is null program will not work");
 		}
 
-<<<<<<< HEAD:src/RunRegistraion.java
-		//Gather info required to connect to database and cs server
-		String username = console.readLine("Please enter your Oracle username: ");
-		char[] password = console.readPassword("Please enter your Oracle password: ");
-		String passw = " ";
-		for(int i = 0; i < password.length; i++){
-			passw = passw + password[i];
-		}
-		
-		username = username.trim();
-		passw = passw.trim();
-=======
-		String userInfo = getUserInfo();
 
->>>>>>> 4c735df7bb968a48f7dde5385fee9d612aab170d:src/RunRegistration.java
+
+
 
 		//Initialize database and data manager
 		dataManager = DataManager.getInstance("init");
-		dataManager.initDatabase(userInfo);
+		//dataManager.initDatabase();
 		
 		//List of available menu options
 		listCommands.add("search");
@@ -115,7 +103,7 @@ public class RunRegistration {
 				
 			}else if(command.equals("license registration")){
 				dataManager.changeState("license registration");
-				licenseRegistratoinMenu();
+				licenseRegistrationMenu();
 				
 			}
 				
@@ -261,7 +249,7 @@ public class RunRegistration {
 	
 
 
-	private static void licenseRegistratoinMenu() {
+	private static void licenseRegistrationMenu() {
 		while(true){
 			try{
 				String driverSIN = console.readLine("Please enter the SIN number of the new driver: ");
@@ -290,14 +278,15 @@ public class RunRegistration {
 					throw new Exception("Driver's license already issued to this person");
 				}
 				
-				Integer license_no = ((Double) (Math.random() * Math.pow(10, 9))).intValue();
+				String license_no = console.readLine("Please enter the license number: ");
 				
-				String license_class = console.readLine("please enter license class");
+				String license_class = console.readLine("please enter license class: ");
+				String pictureFile = console.readLine("please enter the filename of the driver's photo: ");
 				Date date = new Date();
 				Date endDate = new Date();
 				endDate.setYear(date.getYear() + 5);
 				
-				String licenseInfo = license_no.toString() + "," + driverSIN + "," + license_class + new SimpleDateFormat("dd-mm-yyyy").format(date).toString() + new SimpleDateFormat("dd-mm-yyyy").format(endDate).toString();
+				String licenseInfo = license_no + "," + driverSIN + "," + license_class + pictureFile + new SimpleDateFormat("dd-mm-yyyy").format(date).toString() + new SimpleDateFormat("dd-mm-yyyy").format(endDate).toString();
 			}catch(Exception e){
 				System.err.println("Error in license registration menu");
 				System.err.println(e.toString());
