@@ -235,14 +235,26 @@ public class RunRegistration {
 				
 				System.out.println("You are now in the Auto Transaction Menu: to return enter init");
 				String vehicleInfo = console.readLine("Please enter in the vehicle's Serial No. : ");
-				String transactionInfo = console.readLine("Please enter the transaction info: date (mm/dd/yyyy), price :");
-				String sellerInfo = console.readLine("Please enter seller's SIN: ");
-				String buyerInfo = console.readLine("Please enter the buyer's SIN: ");
-				
-				
-				if(vehicleInfo.equals("init")){
+				if(vehicleInfo.toLowerCase().trim().equals("init")){
 					return;
-				}else if(!dataManager.isVehicleRegistered(vehicleInfo)){
+				}
+				
+				String transactionInfo = console.readLine("Please enter the transaction info: date (mm/dd/yyyy), price :");
+				if(transactionInfo.toLowerCase().trim().equals("init")){
+					return;
+				}
+				
+				String sellerInfo = console.readLine("Please enter seller's SIN: ");
+				if(sellerInfo.toLowerCase().trim().equals("init")){
+					return;
+				}
+				
+				String buyerInfo = console.readLine("Please enter the buyer's SIN: ");
+				if(buyerInfo.toLowerCase().trim().equals("init")){
+					return;
+				}
+				
+				if(!dataManager.isVehicleRegistered(vehicleInfo)){
 					System.out.println("Vehicle is not registered, returning to Main Menu.");
 					return;
 				}else if(dataManager.personRegistered(buyerInfo) == null){
@@ -283,6 +295,10 @@ public class RunRegistration {
 				dataManager.addTransaction(transactionInfo);
 				
 				String primary = console.readLine("Is the buyer the primary owner? (y or n): ");
+				if(primary.toLowerCase().trim().equals("init")){
+					return;
+				}
+				
 				String ownInfo = buyerInfo + "," + vehicleInfo + "," + primary;
 				dataManager.addOwnership(ownInfo);
 				
@@ -325,16 +341,46 @@ public class RunRegistration {
 				}
 				
 				String license_no = console.readLine("Please enter the license number: ");
+				if(license_no.toLowerCase().trim().equals("init")){
+					return;
+				}
 				
 				String license_class = console.readLine("Please enter license class: ");
+				if(license_class.toLowerCase().trim().equals("init")){
+					return;
+				}
+				
 				String pictureFile = console.readLine("Please enter the filename of the driver's photo: ");
+				if(pictureFile.toLowerCase().trim().equals("init")){
+					return;
+				}
+				
 				String issueDate = console.readLine("Please enter the Issue Date (mm/dd/yyyy): ");
+				if(issueDate.toLowerCase().trim().equals("init")){
+					return;
+				}
+				
 				String endDate = console.readLine("Please enter the expiry date (mm/dd/yyyy)");
+				if(endDate.toLowerCase().trim().equals("init")){
+					return;
+				}
 				
 				String restrictionInfo = console.readLine("Please enter in the driver's restriction info description: ");
+				if(restrictionInfo.toLowerCase().trim().equals("init")){
+					return;
+				}
+				
 				String condition = console.readLine("Please enter the driver condition info: ");
+				if(condition.toLowerCase().trim().equals("init")){
+					return;
+				}
+				
 				Double restrictID = ((Double)Math.random() * Math.pow(10, 8));
 				Integer restrictionID = restrictID.intValue();
+				
+				if(issueDate.split("/").length != 3 || endDate.split("/").length != 3){
+					throw new Exception("Error in date, make sure to format correctly (mm/dd/yyyy)");
+				}
 				
 				String licenseInfo = license_no + "," + driverSIN + "," + license_class + ","+ pictureFile + "," + issueDate + "," + endDate;
 				dataManager.addLicense(licenseInfo);
