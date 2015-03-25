@@ -142,7 +142,7 @@ public class RunRegistration {
 					
 				}
 				
-				ownerIsPrime = console.readLine("Is the owner the primary owner? (y or n) ");
+				ownerIsPrime = console.readLine("Is the owner the primary owner? (y or n): ");
 				
 				if(ownerIsPrime.toLowerCase().contains("y")){
 					ownerIsPrime = "y";
@@ -154,6 +154,7 @@ public class RunRegistration {
 				}
 				
 				String Vehicle = console.readLine("Please enter the vehicles Serial No., Maker, Model, Year, Color, and type_id ");
+				String vType = console.readLine("Please enter the vehicle's type");
 				
 				if(Vehicle.toLowerCase().equals("init")){
 					return;
@@ -166,6 +167,7 @@ public class RunRegistration {
 					dataManager.addVehicle(Vehicle);
 					String ownerInfo = Owner.split(",")[0] + "," + Vehicle.split(",")[0] + "," + ownerIsPrime;
 					dataManager.addOwnership(ownerInfo);
+					dataManager.addVehicleType(Owner.split(",")[5], vType);
 					
 				}
 				
@@ -178,9 +180,49 @@ public class RunRegistration {
 
 
 	private static void violationRecordMenu() {
-		// TODO Auto-generated method stub
-		
+		while(true){
+			try{
+				System.out.println("You are in the Violation Record Menu: to return to Main Menu enter init");
+				String accused = console.readLine("Enter in the violator's SIN, if not enter NA: ");
+				if(accused.toLowerCase().trim().equals("init")){
+					return;
+				}
+				String vehicleInfo = console.readLine("Enter the vehicle's Serial No.: ");
+				if(vehicleInfo.toLowerCase().trim().equals("init")){
+					return;
+				}
+				String officerNo = console.readLine("Please enter the Officer's id: ");
+				if(officerNo.toLowerCase().trim().equals("init")){
+					return;
+				}
+				
+				if(accused.toLowerCase().equals("na")){
+					String[] ownerInfo = dataManager.getOwnershipInfo(vehicleInfo);
+					for(int i = 0; i < ownerInfo.length; i++){
+						if(isPrimeOwner(ownerInfo[i])){
+							accused = ownerInfo[i].split(",")[0];
+						}
+					}
+				}else if(!dataManager.isVehicleRegistered(vehicleInfo)){
+					throw new Exception("Vehicle is not registered please register vehicle in New Vehicle Registration Menu.");
+					
+				}
+				
+				
+			}catch(Exception e){
+				System.err.println("Exception raised in Violation Menu");
+				System.err.println(e.toString());
+			}
+		}
 	}
+
+	private static boolean isPrimeOwner(String string) {
+		if(string.split(",")[2].toLowerCase().contains("y")){
+			return true;
+		}
+		return false;
+	}
+
 
 	/*
 	 * Allows user to enter information about a vehicle transaction, a buyer that
@@ -240,6 +282,10 @@ public class RunRegistration {
 				transactionInfo = transactionID.toString() + ", " + buyerInfo + ", " + sellerInfo;
 				dataManager.addTransaction(transactionInfo);
 				
+				String primary = console.readLine("Is the buyer the primary owner? (y or n): ");
+				String ownInfo = buyerInfo + "," + vehicleInfo + "," + primary;
+				dataManager.addOwnership(ownInfo);
+				
 			}catch(Exception e){
 				System.err.println("Exception raised in Auto Transaction");
 				System.err.println(e.toString());
@@ -280,13 +326,19 @@ public class RunRegistration {
 				
 				String license_no = console.readLine("Please enter the license number: ");
 				
-				String license_class = console.readLine("please enter license class: ");
-				String pictureFile = console.readLine("please enter the filename of the driver's photo: ");
-				Date date = new Date();
-				Date endDate = new Date();
-				endDate.setYear(date.getYear() + 5);
+				String license_class = console.readLine("Please enter license class: ");
+				String pictureFile = console.readLine("Please enter the filename of the driver's photo: ");
+				String issueDate = console.readLine("Please enter the Issue Date (mm/dd/yyyy): ");
+				String endDate = console.readLine("Please enter the expiry date (mm/dd/yyyy)");
 				
-				String licenseInfo = license_no + "," + driverSIN + "," + license_class + pictureFile + new SimpleDateFormat("dd-mm-yyyy").format(date).toString() + new SimpleDateFormat("dd-mm-yyyy").format(endDate).toString();
+				String restrictionInfo = console.readLine("Please enter in the driver's restriction info description: ");
+				String condition = console.readLine("Please enter the driver condition info: ");
+				Double restrictID = ((Double)Math.random() * Math.pow(10, 8));
+				Integer restrictionID = restrictID.intValue();
+				
+				String licenseInfo = license_no + "," + driverSIN + "," + license_class + ","+ pictureFile + "," + issueDate + "," + endDate;
+				dataManager.addLicense(licenseInfo);
+				dataManager.addRestriction(restrictionID, restrictionInfo, condition);
 			}catch(Exception e){
 				System.err.println("Error in license registration menu");
 				System.err.println(e.toString());

@@ -131,5 +131,21 @@ public class DataManager {
 		return null;
 	}
 
+	public void addLicense(String licenseInfo) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void addRestriction(Integer restrictionID, String restrictionInfo,
+			String condition) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void addVehicleType(String string, String vType) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }
