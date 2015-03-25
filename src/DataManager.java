@@ -5,6 +5,7 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 
 
@@ -64,7 +65,7 @@ public class DataManager {
 		return null;
 	}
 
-	public void addPerson(String owner) {
+	public boolean addPerson(String owner) {
 		try{
 			String[] stmtParts = owner.split(",");
 			PreparedStatement stmt = con.prepareStatement("insert into people values( ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -89,16 +90,34 @@ public class DataManager {
 			stmt.setDate(9, date);
 			
 			System.out.println(stmt.toString());
-			
+			stmt.executeUpdate();
+			return true;
 		}catch(Exception e){
 			System.err.println("Error while adding new Person, make sure values are properly added");
 			System.err.println(e.toString());
+			return false;
 		}
 	}
 
 	public void addVehicle(String vehicle) {
-		// TODO Auto-generated method stub
-		
+		try{
+			String[] stmtParts = vehicle.split(",");
+			PreparedStatement stmt = con.prepareStatement("insert into vehicle values( ?, ?, ?, ?, ?, ?)");		
+			
+			stmt.clearParameters();
+			
+			stmt.setString(1, stmtParts[0].trim());
+			stmt.setString(2, stmtParts[1].trim());
+			stmt.setString(3, stmtParts[2].trim());
+			stmt.setBigDecimal(4, BigDecimal.valueOf(Double.valueOf(stmtParts[3].trim())));
+			stmt.setString(5, stmtParts[4].trim());
+			stmt.setInt(6, Integer.valueOf(stmtParts[5].trim()));
+			
+			stmt.executeUpdate();
+		}catch(Exception e){
+			System.err.println("Error while adding Vehicle");
+			System.err.println(e.toString());
+		}
 	}
 
 	public boolean isVehicleRegistered(String vehicleInfo) {
@@ -106,14 +125,28 @@ public class DataManager {
 		return false;
 	}
 
-	public String[] getOwnershipInfo(String vehicleInfo) {
+	public ArrayList<String> getOwnershipInfo(String vehicleInfo) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public void removeOwners(String[] ownerInfo) {
-		// TODO Auto-generated method stub
-		
+	public void removeOwners(ArrayList<String> ownerInfo) {
+		try{
+			
+			PreparedStatement stmt = con.prepareStatement("delete from owner where owner_id = ? AND vehicle_id = ?");
+			String[] stmtParts;
+			for(String owner : ownerInfo){
+				stmtParts = owner.split(",");
+				stmt.clearParameters();
+				stmt.setString(1, stmtParts[0].trim());
+				stmt.setString(2, stmtParts[1].trim());
+				
+				stmt.executeUpdate();
+			}
+		}catch(Exception e){
+			System.err.println("Error while removing owner's");
+			System.err.println(e.toString());
+		}
 	}
 
 	public void addTransaction(String transactionInfo) {
@@ -143,6 +176,16 @@ public class DataManager {
 	}
 
 	public void addVehicleType(String string, String vType) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void addTicket(Integer ticketNo, String ticketInfo) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void addTicketType(String ticketType, Double amount) {
 		// TODO Auto-generated method stub
 		
 	}

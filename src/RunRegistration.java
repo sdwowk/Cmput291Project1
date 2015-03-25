@@ -1,10 +1,5 @@
 import java.io.Console;
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 
@@ -122,7 +117,7 @@ public class RunRegistration {
 		while(true){		
 			try{
 				String ownerIsPrime;
-				System.out.println("You are now in the New Vehicle Registration Menu: to return to Main Menu enter init");
+				System.out.println("You are now in the New Vehicle Registration Menu: to return to Main Menu enter init at any time.");
 				String Owner = console.readLine("Please enter in the New Vehicle Owner's SIN, name, height, weight, eyecolor, hair color, addr, gender, birthday (mm/dd/yyyy): ");
 				
 				if(Owner.toLowerCase().equals("init")){
@@ -135,7 +130,11 @@ public class RunRegistration {
 				}else if(dataManager.personRegistered(Owner.split(",")[0])== null){
 					System.out.println("This owner is not in the Database, adding them now.");
 					
-					dataManager.addPerson(Owner);
+					if(dataManager.addPerson(Owner)){
+						
+					}else{
+						throw new Exception("Error adding new Person");
+					}
 					
 				}else{
 					System.out.println("This owner is already in the Database");
@@ -182,7 +181,7 @@ public class RunRegistration {
 	private static void violationRecordMenu() {
 		while(true){
 			try{
-				System.out.println("You are in the Violation Record Menu: to return to Main Menu enter init");
+				System.out.println("You are in the Violation Record Menu: to return to Main Menu enter init at any time.");
 				String accused = console.readLine("Enter in the violator's SIN, if not enter NA: ");
 				if(accused.toLowerCase().trim().equals("init")){
 					return;
@@ -197,17 +196,53 @@ public class RunRegistration {
 				}
 				
 				if(accused.toLowerCase().equals("na")){
-					String[] ownerInfo = dataManager.getOwnershipInfo(vehicleInfo);
-					for(int i = 0; i < ownerInfo.length; i++){
-						if(isPrimeOwner(ownerInfo[i])){
-							accused = ownerInfo[i].split(",")[0];
+					ArrayList<String> ownerInfo = dataManager.getOwnershipInfo(vehicleInfo);
+					for(int i = 0; i < ownerInfo.size(); i++){
+						if(isPrimeOwner(ownerInfo.get(i))){
+							accused = ownerInfo.get(i).split(",")[0];
 						}
 					}
-				}else if(!dataManager.isVehicleRegistered(vehicleInfo)){
+				}
+				if(!dataManager.isVehicleRegistered(vehicleInfo)){
 					throw new Exception("Vehicle is not registered please register vehicle in New Vehicle Registration Menu.");
-					
+				}
+				Integer ticketNo = ((Double)(Math.random() * Math.pow(10, 15))).intValue();
+				
+				String ticketType = console.readLine("Please enter the ticket type: ");
+				if(ticketType.toLowerCase().trim().equals("init")){
+					return;
 				}
 				
+				String ticketDate = console.readLine("Please enter the violation date (mm/dd/yyyy): ");
+				if(ticketDate.toLowerCase().trim().equals("init")){
+					return;
+				}else if(ticketDate.split("/").length != 3){
+					throw new Exception("ticket date entered improperly make sure to follow the format mm/dd/yyyy");
+				}
+				
+				String place = console.readLine("Please enter the place of the violation: ");
+				if(place.toLowerCase().trim().equals("init")){
+					return;
+				}
+				
+				String description = console.readLine("Please enter the ticket desciption: ");
+				if(description.toLowerCase().trim().equals("init")){
+					return;
+				}
+				
+				String ticketInfo = accused + "," + vehicleInfo + "," + officerNo + "," + ticketType + "," + ticketDate + "," + place + "," + description;
+				
+				dataManager.addTicket(ticketNo, ticketInfo);
+				
+				String fine = console.readLine("Please enter the ticket fine: ");
+				if(fine.toLowerCase().trim().equals("init")){
+					return;
+				}else if(fine.split(".")[1].length() > 2 || fine.split(".").length != 2){
+					throw new Exception("Fine improperly entered, make sure there is only two decimal places and that there is only one decima");
+				}
+				
+				Double amount = Double.valueOf(fine);
+				dataManager.addTicketType(ticketType, amount);
 				
 			}catch(Exception e){
 				System.err.println("Exception raised in Violation Menu");
@@ -233,7 +268,7 @@ public class RunRegistration {
 		while(true){
 			try{
 				
-				System.out.println("You are now in the Auto Transaction Menu: to return enter init");
+				System.out.println("You are now in the Auto Transaction Menu: to return enter init at any time.");
 				String vehicleInfo = console.readLine("Please enter in the vehicle's Serial No. : ");
 				if(vehicleInfo.toLowerCase().trim().equals("init")){
 					return;
@@ -271,15 +306,19 @@ public class RunRegistration {
 						
 					}						
 					
-					dataManager.addPerson(person);
+					if(dataManager.addPerson(person)){
+						
+					}else{
+						throw new Exception("Error adding new person");
+					}
 										
 				}
 						
-				String[] ownerInfo = dataManager.getOwnershipInfo(vehicleInfo);
+				ArrayList<String> ownerInfo = dataManager.getOwnershipInfo(vehicleInfo);
 				
 				boolean sellerIsOwner = false;
-				for(int i = 0; i < ownerInfo.length; i++){
-					if(ownerInfo[i].split(",")[0].trim().toLowerCase().equals(sellerInfo.toLowerCase().trim())){
+				for(int i = 0; i < ownerInfo.size(); i++){
+					if(ownerInfo.get(i).split(",")[0].trim().toLowerCase().equals(sellerInfo.toLowerCase().trim())){
 						sellerIsOwner = true;
 					}
 				}
@@ -314,6 +353,7 @@ public class RunRegistration {
 	private static void licenseRegistrationMenu() {
 		while(true){
 			try{
+				System.out.println("You are in the License Registration Menu. To return to Main Menu enter init at any time.");
 				String driverSIN = console.readLine("Please enter the SIN number of the new driver: ");
 				
 				if(driverSIN.toLowerCase().equals("init")){
@@ -334,7 +374,11 @@ public class RunRegistration {
 						
 					}						
 					
-					dataManager.addPerson(person);
+					if(dataManager.addPerson(person)){
+					
+					}else{
+						throw new Exception("Error adding new person");
+					}
 										
 				}else if(dataManager.licenseRegistered(driverSIN) != null){
 					throw new Exception("Driver's license already issued to this person");
@@ -375,9 +419,8 @@ public class RunRegistration {
 					return;
 				}
 				
-				Double restrictID = ((Double)Math.random() * Math.pow(10, 8));
-				Integer restrictionID = restrictID.intValue();
-				
+				Integer restrictionID = ((Double)(Math.random() * Math.pow(10, 8))).intValue();
+								
 				if(issueDate.split("/").length != 3 || endDate.split("/").length != 3){
 					throw new Exception("Error in date, make sure to format correctly (mm/dd/yyyy)");
 				}
@@ -397,8 +440,8 @@ public class RunRegistration {
 	private static void searchMenu() {
 		while(true){
 			try{
-				System.out.println("You are now in the Search Menu: to return to Main Menu enter init; otherwise enter in a name or license number");
-				String searchRequest = console.readLine();
+				System.out.println("You are now in the Search Menu: to return to Main Menu enter init any time.");
+				String searchRequest = console.readLine("Please enter in a name or license number");
 				
 				if(searchRequest.toLowerCase().equals("init")){
 					return;
