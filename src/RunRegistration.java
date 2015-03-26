@@ -118,7 +118,7 @@ public class RunRegistration {
 			try{
 				String ownerIsPrime;
 				System.out.println("You are now in the New Vehicle Registration Menu: to return to Main Menu enter init at any time.");
-				String Owner = console.readLine("Please enter in the New Vehicle Owner's SIN, name, height, weight, eyecolor, hair color, addr, gender, birthday (mm/dd/yyyy): ");
+				String Owner = console.readLine("Please enter in the New Vehicle Owner's SIN, name, height, weight, eyecolor, hair color, address, gender, birthday (mm/dd/yyyy): ");
 				
 				if(Owner.toLowerCase().equals("init")){
 					return;
@@ -130,10 +130,11 @@ public class RunRegistration {
 				}else if(dataManager.personRegistered(Owner.split(",")[0])== null){
 					System.out.println("This owner is not in the Database, adding them now.");
 					
-					if(dataManager.addPerson(Owner)){
+					boolean execute = dataManager.addPerson(Owner);
+					if(execute){
 						
 					}else{
-						throw new Exception("Error adding new Person");
+						throw new Exception("Error adding new Person to Database");
 					}
 					
 				}else{
@@ -152,10 +153,13 @@ public class RunRegistration {
 					ownerIsPrime = "n";
 				}
 				
-				String Vehicle = console.readLine("Please enter the vehicles Serial No., Maker, Model, Year, Color, and type_id ");
-				String vType = console.readLine("Please enter the vehicle's type");
-				
+				String Vehicle = console.readLine("Please enter the vehicles Serial No., Maker, Model, Year, Color, and type_id: ");
 				if(Vehicle.toLowerCase().equals("init")){
+					return;
+				}
+				
+				String vType = console.readLine("Please enter the vehicle's type: ");
+				if(vType.toLowerCase().trim().equals("init")){
 					return;
 				}else if(Vehicle.split(",").length != 6){
 					throw new Exception("Input invalid. Make sure to separate each entry with a comma!");
@@ -163,10 +167,19 @@ public class RunRegistration {
 					throw new Exception("This Vehicle serial no. is already registered. Please enter correct data.");
 				}
 				else{
-					dataManager.addVehicle(Vehicle);
+					boolean execute = dataManager.addVehicle(Vehicle);
+					if(!execute){
+						throw new Exception("Error adding vehicle to database");
+					}
 					String ownerInfo = Owner.split(",")[0] + "," + Vehicle.split(",")[0] + "," + ownerIsPrime;
-					dataManager.addOwnership(ownerInfo);
-					dataManager.addVehicleType(Owner.split(",")[5], vType);
+					execute = dataManager.addOwnership(ownerInfo);
+					if(!execute){
+						throw new Exception("Error adding owner to database");
+					}
+					execute = dataManager.addVehicleType(Owner.split(",")[5], vType);
+					if(!execute){
+						throw new Exception("Error adding vehicle type to database");
+					}
 					
 				}
 				
@@ -232,8 +245,10 @@ public class RunRegistration {
 				
 				String ticketInfo = accused + "," + vehicleInfo + "," + officerNo + "," + ticketType + "," + ticketDate + "," + place + "," + description;
 				
-				dataManager.addTicket(ticketNo, ticketInfo);
-				
+				boolean execute = dataManager.addTicket(ticketNo, ticketInfo);
+				if(!execute){
+					throw new Exception("Error adding ticket to database");
+				}
 				String fine = console.readLine("Please enter the ticket fine: ");
 				if(fine.toLowerCase().trim().equals("init")){
 					return;
@@ -242,8 +257,10 @@ public class RunRegistration {
 				}
 				
 				Double amount = Double.valueOf(fine);
-				dataManager.addTicketType(ticketType, amount);
-				
+				execute = dataManager.addTicketType(ticketType, amount);
+				if(!execute){
+					throw new Exception("Error adding ticket type to database");
+				}
 			}catch(Exception e){
 				System.err.println("Exception raised in Violation Menu");
 				System.err.println(e.toString());
@@ -262,7 +279,8 @@ public class RunRegistration {
 	/*
 	 * Allows user to enter information about a vehicle transaction, a buyer that
 	 * hasn't been registered in the database and produces errors when a seller
-	 * has not been registered or a vehicle for sale has not been registered.
+	 * has not been registered or a vehicle for sale has not been registered. An
+	 * error brings the person back to the start of the Auto Transaction Menu.
 	 */
 	private static void autoTransactionMenu() {
 		while(true){
@@ -274,9 +292,11 @@ public class RunRegistration {
 					return;
 				}
 				
-				String transactionInfo = console.readLine("Please enter the transaction info: date (mm/dd/yyyy), price :");
+				String transactionInfo = console.readLine("Please enter the following transaction information: date (mm/dd/yyyy), price: ");
 				if(transactionInfo.toLowerCase().trim().equals("init")){
 					return;
+				}else if(transactionInfo.split(",").length != 2 || transactionInfo.split(",")[0].split("/").length != 3){
+					throw new Exception("Error in entering transacion info. Make sure Information is in the following forma. date(mm/dd/yyyy) , price");
 				}
 				
 				String sellerInfo = console.readLine("Please enter seller's SIN: ");
@@ -295,7 +315,7 @@ public class RunRegistration {
 				}else if(dataManager.personRegistered(buyerInfo) == null){
 					System.out.println("Buyer is not Registered");
 					
-					String person = console.readLine("Please enter in the New person's SIN, name, height, weight, eyecolor, hair color, addr, gender, birthday (mm/dd/yyyy): ");
+					String person = console.readLine("Please enter in the New person's SIN, name, height, weight, eyecolor, hair color, address, gender, birthday (mm/dd/yyyy): ");
 					
 					if(person.toLowerCase().equals("init")){
 						return;
@@ -306,10 +326,11 @@ public class RunRegistration {
 						
 					}						
 					
-					if(dataManager.addPerson(person)){
+					boolean execute = dataManager.addPerson(person);
+					if(execute){
 						
 					}else{
-						throw new Exception("Error adding new person");
+						throw new Exception("Error adding new person to Database");
 					}
 										
 				}
@@ -327,11 +348,18 @@ public class RunRegistration {
 					throw new Exception("Seller is not currently an owner!");
 				}
 				
-				dataManager.removeOwners(ownerInfo);
+				boolean execute = dataManager.removeOwners(ownerInfo);
+				if(!execute){
+					throw new Exception("Error removing owner's from database");
+				}
+				
 				Integer transactionID = ((Double)(Math.random() * Math.pow(10, 15))).intValue();
 					
-				transactionInfo = transactionID.toString() + ", " + buyerInfo + ", " + sellerInfo;
-				dataManager.addTransaction(transactionInfo);
+				transactionInfo = transactionID.toString() + ", " + sellerInfo + ", " + buyerInfo + "," + vehicleInfo + "," + transactionInfo;
+				execute = dataManager.addTransaction(transactionInfo);
+				if(!execute){
+					throw new Exception("Error in adding Auto Sale to database");
+				}
 				
 				String primary = console.readLine("Is the buyer the primary owner? (y or n): ");
 				if(primary.toLowerCase().trim().equals("init")){
@@ -339,7 +367,10 @@ public class RunRegistration {
 				}
 				
 				String ownInfo = buyerInfo + "," + vehicleInfo + "," + primary;
-				dataManager.addOwnership(ownInfo);
+				execute = dataManager.addOwnership(ownInfo);
+				if(!execute){
+					throw new Exception("Error adding owner to database");
+				}
 				
 			}catch(Exception e){
 				System.err.println("Exception raised in Auto Transaction");
@@ -362,7 +393,7 @@ public class RunRegistration {
 				else if(dataManager.personRegistered(driverSIN) == null){
 					System.out.println("Person not registered.");
 									
-					String person = console.readLine("Please enter in the New person's name, height, weight, eyecolor, hair color, addr, gender, birthday (mm/dd/yyyy): ");
+					String person = console.readLine("Please enter in the New person's name, height, weight, eyecolor, hair color, address, gender, birthday (mm/dd/yyyy): ");
 					
 					if(person.toLowerCase().equals("init")){
 						return;
@@ -374,10 +405,11 @@ public class RunRegistration {
 						
 					}						
 					
-					if(dataManager.addPerson(person)){
+					boolean execute = dataManager.addPerson(person);
+					if(execute){
 					
 					}else{
-						throw new Exception("Error adding new person");
+						throw new Exception("Error adding new person to Database");
 					}
 										
 				}else if(dataManager.licenseRegistered(driverSIN) != null){
@@ -409,25 +441,30 @@ public class RunRegistration {
 					return;
 				}
 				
-				String restrictionInfo = console.readLine("Please enter in the driver's restriction info description: ");
-				if(restrictionInfo.toLowerCase().trim().equals("init")){
-					return;
-				}
-				
-				String condition = console.readLine("Please enter the driver condition info: ");
+				String condition = console.readLine("Please enter the driver condition description (Type NA if not applicable): ");
 				if(condition.toLowerCase().trim().equals("init")){
 					return;
+				}else if(condition.toLowerCase().trim().equals("na")){
+				}
+				else{
+									
+					Integer restrictionID = ((Double)(Math.random() * Math.pow(10, 8))).intValue();
+					boolean execute = dataManager.addRestriction(license_no, restrictionID, condition);
+					if(!execute){
+						throw new Exception("Error adding restriction to database");
+					}
 				}
 				
-				Integer restrictionID = ((Double)(Math.random() * Math.pow(10, 8))).intValue();
-								
 				if(issueDate.split("/").length != 3 || endDate.split("/").length != 3){
 					throw new Exception("Error in date, make sure to format correctly (mm/dd/yyyy)");
 				}
 				
 				String licenseInfo = license_no + "," + driverSIN + "," + license_class + ","+ pictureFile + "," + issueDate + "," + endDate;
-				dataManager.addLicense(licenseInfo);
-				dataManager.addRestriction(restrictionID, restrictionInfo, condition);
+				boolean execute = dataManager.addLicense(licenseInfo);
+				if(!execute){
+					throw new Exception("Error adding license to database");
+				}
+				
 			}catch(Exception e){
 				System.err.println("Error in license registration menu");
 				System.err.println(e.toString());
