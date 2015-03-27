@@ -268,7 +268,7 @@ public class DataManager {
 
 	public String licenseRegistered(String driverSIN) {
 		try{
-			PreparedStatement stmt = con.prepareStatement("SELECT license_no, class FROM drive_license WHERE sin = ?");
+			PreparedStatement stmt = con.prepareStatement("SELECT licence_no, class FROM drive_licence WHERE sin = ?");
 			
 			stmt.clearParameters();
 			
@@ -292,7 +292,7 @@ public class DataManager {
 	public boolean addLicense(String licenseInfo) {
 		try{
 			String[] stmtParts = licenseInfo.split(",");
-			PreparedStatement stmt = con.prepareStatement("Insert into drive_license values(?, ?, ?, ?, ?, ?)");
+			PreparedStatement stmt = con.prepareStatement("Insert into drive_licence values(?, ?, ?, ?, ?, ?)");
 			
 			stmt.clearParameters();
 			
@@ -424,6 +424,82 @@ public class DataManager {
 	}
 
 	public ArrayList<String> personSearch(String query) {
+		try{
+			ArrayList<String> result = new ArrayList<String>();
+			PreparedStatement personStatement = con.prepareStatement("SELECT sin FROM people WHERE name = ?");
+			
+			personStatement.clearParameters();
+			
+			personStatement.setString(1, query);
+			
+			ResultSet personResults = personStatement.executeQuery();
+			ArrayList<String> persons = new ArrayList<String>();
+			while(personResults.next()){
+				persons.add(personResults.getString(1));
+			}
+			
+			
+			if(persons.isEmpty()){
+				PreparedStatement licenseStatement = con.prepareStatement("SELECT sin FROM drive_licence WHERE licence_no = ?");
+				
+				personStatement.clearParameters();
+				
+				personStatement.setString(1, query);
+				
+				ResultSet licResults = licenseStatement.executeQuery();
+				ArrayList<String> licenses = new ArrayList<String>();
+				while(licResults.next()){
+					licenses.add(licResults.getString(1));
+				}
+			}else{
+				for(String person : persons){
+					result.add(personRegistered(person).get(0) + "," + licenseRegistered(person) + "," + getCondition(licenseRegistered(person).split(",")[0]));
+				}
+			}
+			return result;
+		}catch(Exception e){
+			System.err.println("Error while searching people.");
+			System.err.println(e.toString());
+			
+			return null;
+		}
+	}
+
+	private String getCondition(String string) {
+		try{
+			PreparedStatement conditionStmt = con.prepareStatement("SELECT r_id FROM restriction WHERE licence_no = ?");
+			
+			conditionStmt.clearParameters();
+			
+			conditionStmt.setString(1, string);
+			
+			Integer rID = null;
+			ResultSet restrictionID = conditionStmt.executeQuery();
+			if(restrictionID.next()){
+				rID = restrictionID.getInt(1);
+			}
+			
+			PreparedStatement descStmt = con.prepareStatement("SELECT description FROM condition WHERE c_id = ?");
+			
+			descStmt.clearParameters();
+			
+			descStmt.setInt(1, rID);
+			
+			String description = " ";
+			ResultSet desc = descStmt.executeQuery();
+			if(desc.next()){
+				description = desc.getString(1);
+			}
+			return description;
+		}catch(Exception e){
+			System.err.println("Error getting the condition from database");
+			System.err.println(e.toString());
+			
+			return null;
+		}
+	}
+
+	public ArrayList<String> vehicleSearch(String query) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -506,7 +506,21 @@ public class RunRegistration {
 
 	private static void vehicleSearch() {
 		try{
+			System.out.println("You are in the Vehicle Search Menu. To return to Search Menu, enter search");
+			String query = console.readLine("Please enter a vehicle's serial number");
 			
+			if(query.toLowerCase().trim().equals("search")){
+				return;
+			}
+			
+			ArrayList<String> results = dataManager.vehicleSearch(query);
+			if(results.isEmpty()){
+				throw new Exception("The vehicle searched does not exist");
+			}else{
+				for(String result : results){
+					System.out.println(result);
+				}
+			}
 		}catch(Exception e){
 			System.err.println("exception raised in searching vehicles");
 			System.err.println(e.toString());
@@ -524,9 +538,15 @@ public class RunRegistration {
 			}
 			
 			ArrayList<String> results = dataManager.personSearch(query);
-			for(String result : results){
-				System.out.println(result);
+			if(!results.isEmpty()){
+				
+				for(String result : results){
+					System.out.println(result);
+				}
 			}
+			else{
+				throw new Exception("The person searched is not registered");
+			}	
 		}catch(Exception e){
 			System.err.println("exception raised in searching people");
 			System.err.println(e.toString());
