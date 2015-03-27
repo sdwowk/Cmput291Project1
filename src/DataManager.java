@@ -62,19 +62,21 @@ public class DataManager {
 
 	public ArrayList<String> personRegistered(String licOwner) {
 		try{
-			PreparedStatement peopleStmt = con.prepareStatement("SELECT name, addr, birthday FROM people WHERE sin = ?");
+			PreparedStatement peopleStmt = con.prepareStatement("SELECT name, addr, birthday FROM people WHERE LTRIM(RTRIM(sin)) = ?");
 			
 			peopleStmt.clearParameters();
 			
-			peopleStmt.setString(1, licOwner);
+			peopleStmt.setString(1, licOwner.trim());
 			
 			ResultSet registered = peopleStmt.executeQuery();
 			
 			ArrayList<String> result = new ArrayList<String>();
 			while(registered.next()){
+				System.out.println("GOOD");
 				result.add(registered.getString(1) + "," + registered.getString(2) + "," + registered.getDate(3).toString());
 			}
 			if(result.isEmpty()){
+				System.out.println("Bad");
 				return null;
 			}
 			return result;
@@ -106,7 +108,7 @@ public class DataManager {
 			if(dateParts.length != 3){
 				throw new Exception("Date improperly input make sure it is in mm/dd/yyyy format and that the values are valid");
 			}
-			java.sql.Date date = new java.sql.Date(Integer.valueOf(dateParts[2]), Integer.valueOf(dateParts[0]), Integer.valueOf(dateParts[1]));
+			java.sql.Date date = new java.sql.Date(Integer.valueOf(dateParts[2].trim()), Integer.valueOf(dateParts[0].trim()), Integer.valueOf(dateParts[1].trim()));
 			
 			stmt.setDate(9, date);
 			
@@ -147,11 +149,11 @@ public class DataManager {
 
 	public boolean isVehicleRegistered(String vehicleInfo) {
 		try{
-			PreparedStatement stmt = con.prepareStatement("SELECT COUNT(*) FROM vehicle WHERE serial_no = ?");
+			PreparedStatement stmt = con.prepareStatement("SELECT COUNT(*) FROM vehicle WHERE LTRIM(RTRIM(serial_no)) = ?");
 			
 			stmt.clearParameters();
 			
-			stmt.setString(1, vehicleInfo);
+			stmt.setString(1, vehicleInfo.trim());
 			
 			ResultSet result = stmt.executeQuery();
 			while(result.next()){
@@ -167,11 +169,11 @@ public class DataManager {
 	public ArrayList<String> getOwnershipInfo(String vehicleInfo) {
 		try{
 			ArrayList<String> result = new ArrayList<String>();
-			PreparedStatement stmt = con.prepareStatement("SELECT * FROM owner WHERE vehicle_id = ?");
+			PreparedStatement stmt = con.prepareStatement("SELECT * FROM owner WHERE LTRIM(RTRIM(vehicle_id)) = ?");
 			
 			stmt.clearParameters();
 			
-			stmt.setString(1, vehicleInfo);
+			stmt.setString(1, vehicleInfo.trim());
 			
 			ResultSet response = stmt.executeQuery();
 			while(response.next()){
@@ -193,7 +195,7 @@ public class DataManager {
 	public boolean removeOwners(ArrayList<String> ownerInfo) {
 		try{
 			
-			PreparedStatement stmt = con.prepareStatement("delete from owner where owner_id = ? AND vehicle_id = ?");
+			PreparedStatement stmt = con.prepareStatement("delete from owner where LTRIM(RTRIM(owner_id = ?)) AND LTRIM(RTRIM(vehicle_id)) = ?");
 			String[] stmtParts;
 			for(String owner : ownerInfo){
 				stmtParts = owner.split(",");
@@ -221,15 +223,15 @@ public class DataManager {
 			stmt.clearParameters();
 			
 			stmt.setInt(1, Integer.valueOf(stmtParts[0].trim()));
-			stmt.setString(2, stmtParts[1]);
-			stmt.setString(3, stmtParts[2]);
-			stmt.setString(4, stmtParts[3]);
+			stmt.setString(2, stmtParts[1].trim());
+			stmt.setString(3, stmtParts[2].trim());
+			stmt.setString(4, stmtParts[3].trim());
 			
 			String[] dateParts = stmtParts[4].trim().split("/");
 			if(dateParts.length != 3){
 				throw new Exception("Date improperly input make sure it is in mm/dd/yyyy format and that the values are valid");
 			}
-			java.sql.Date date = new java.sql.Date(Integer.valueOf(dateParts[2]), Integer.valueOf(dateParts[0]), Integer.valueOf(dateParts[1]));
+			java.sql.Date date = new java.sql.Date(Integer.valueOf(dateParts[2].trim()), Integer.valueOf(dateParts[0].trim()), Integer.valueOf(dateParts[1].trim()));
 			stmt.setDate(5, date);
 			
 			stmt.setBigDecimal(6, BigDecimal.valueOf(Double.valueOf(stmtParts[5].trim())));
@@ -268,17 +270,17 @@ public class DataManager {
 
 	public String licenseRegistered(String driverSIN) {
 		try{
-			PreparedStatement stmt = con.prepareStatement("SELECT licence_no, class FROM drive_licence WHERE sin = ?");
+			PreparedStatement stmt = con.prepareStatement("SELECT licence_no, class, expiring_date FROM drive_licence WHERE LTRIM(RTRIM(sin)) = ?");
 			
 			stmt.clearParameters();
 			
-			stmt.setString(1, driverSIN);
+			stmt.setString(1, driverSIN.trim());
 			
 			String result = " ";
 
 			ResultSet response = stmt.executeQuery();
 			if(response.next()){
-				result = response.getString(1) + "," + response.getString(2);
+				result = response.getString(1) + "," + response.getString(2) + "," + response.getDate(3).toString();
 			}
 
 			return result;
@@ -299,10 +301,13 @@ public class DataManager {
 			stmt.setString(1, stmtParts[0]);
 			stmt.setString(2, stmtParts[1]);
 			stmt.setString(3, stmtParts[2]);
-			
-			File pictureFile = new File(stmtParts[3]);
-			
-			stmt.setBinaryStream(4, new FileInputStream(pictureFile), (int)pictureFile.length());
+			if(stmtParts[3].trim().equals("") || stmtParts[3].toLowerCase().trim().equals("null")){
+				stmt.setNull(4, java.sql.Types.BLOB);
+			}else{
+				File pictureFile = new File(stmtParts[3]);
+				
+				stmt.setBinaryStream(4, new FileInputStream(pictureFile), (int)pictureFile.length());
+			}
 			
 			String[] iDateParts = stmtParts[4].trim().split("/");
 			if(iDateParts.length != 3){
@@ -429,17 +434,24 @@ public class DataManager {
 			ArrayList<String> result = new ArrayList<String>();
 			
 			//Query should bring back all the SIN numbers of either a driver's license entered or a name entered
-			PreparedStatement personStatement = con.prepareStatement("SELECT sin FROM people p, drive_licence d WHERE p.name = ? OR d.licence_no + ?");
+			PreparedStatement personStatement = con.prepareStatement("SELECT sin FROM people WHERE (LTRIM(RTRIM(name)) = ?)");
+			PreparedStatement licensSmt = con.prepareStatement("SELECT sin FROM drive_licence WHERE (LTRIM(RTRIM(licence_no)) = ?)");
 			
 			personStatement.clearParameters();
 			
-			personStatement.setString(1, query);
-			personStatement.setString(2, query);
+			personStatement.setString(1, query.trim());
+			licensSmt.setString(1, query.trim());
 			
 			ResultSet personResults = personStatement.executeQuery();
+			ResultSet licenceResults = licensSmt.executeQuery();
+			
 			ArrayList<String> persons = new ArrayList<String>();
 			while(personResults.next()){
 				persons.add(personResults.getString(1));
+			}
+			
+			while(licenceResults.next()){
+				persons.add(licenceResults.getString(1));
 			}
 			
 			//If a SIN was entered this should be true, need to grab violation information from person
@@ -447,11 +459,11 @@ public class DataManager {
 				//Add the license numbers for the SIN
 				persons.add(licenseRegistered(query).split(",")[0].trim());				
 				
-				PreparedStatement sinStmt = con.prepareStatement("SELECT * FROM ticket WHERE violator_no = ?");
+				PreparedStatement sinStmt = con.prepareStatement("SELECT * FROM ticket WHERE LTRIM(RTRIM(violator_no)) = ?");
 				
 				sinStmt.clearParameters();
 				
-				sinStmt.setString(1, persons.get(0));
+				sinStmt.setString(1, persons.get(0).trim());
 				
 				ResultSet results = sinStmt.executeQuery();
 				while(results.next()){
@@ -461,11 +473,11 @@ public class DataManager {
 				return result;
 			}
 			
-			PreparedStatement violationStmt = con.prepareStatement("SELECT * FROM ticket WHERE violator_no = ?");
+			PreparedStatement violationStmt = con.prepareStatement("SELECT * FROM ticket WHERE LTRIM(RTRIM(violator_no)) = ?");
 			
 			violationStmt.clearParameters();
 			
-			violationStmt.setString(1, query);
+			violationStmt.setString(1, query.trim());
 			
 			ResultSet results = violationStmt.executeQuery();
 		
@@ -501,11 +513,11 @@ public class DataManager {
 
 	private String getCondition(String string) {
 		try{
-			PreparedStatement conditionStmt = con.prepareStatement("SELECT r_id FROM restriction WHERE licence_no = ?");
+			PreparedStatement conditionStmt = con.prepareStatement("SELECT r_id FROM restriction WHERE LTRIM(RTRIM(licence_no)) = ?");
 			
 			conditionStmt.clearParameters();
 			
-			conditionStmt.setString(1, string);
+			conditionStmt.setString(1, string.trim());
 			
 			Integer rID = null;
 			ResultSet restrictionID = conditionStmt.executeQuery();
@@ -513,7 +525,7 @@ public class DataManager {
 				rID = restrictionID.getInt(1);
 			}
 			
-			PreparedStatement descStmt = con.prepareStatement("SELECT description FROM condition WHERE c_id = ?");
+			PreparedStatement descStmt = con.prepareStatement("SELECT description FROM condition WHERE LTRIM(RTRIM(c_id)) = ?");
 			
 			descStmt.clearParameters();
 			
@@ -526,7 +538,7 @@ public class DataManager {
 			}
 			return description;
 		}catch(Exception e){
-			System.err.println("Error getting the condition from database");
+			System.err.println("Error getting the condition from database. Condition may not exist");
 			System.err.println(e.toString());
 			
 			return null;

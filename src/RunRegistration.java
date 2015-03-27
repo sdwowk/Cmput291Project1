@@ -124,10 +124,12 @@ public class RunRegistration {
 					return;
 				}
 				
+				System.out.println("SIN is" + Owner.split(",")[0].trim());
+				
 				if(Owner.split(",").length != 9){
 					throw new Exception("Input invalid. Make sure to separate each entry with a comma!");
 					
-				}else if(dataManager.personRegistered(Owner.split(",")[0])== null){
+				}else if(dataManager.personRegistered(Owner.split(",")[0]) == null){
 					System.out.println("This owner is not in the Database, adding them now.");
 					
 					boolean execute = dataManager.addPerson(Owner);
@@ -390,7 +392,7 @@ public class RunRegistration {
 				if(driverSIN.toLowerCase().equals("init")){
 					return;
 				}
-				else if(dataManager.personRegistered(driverSIN).equals(" ")){
+				else if(dataManager.personRegistered(driverSIN.trim()) == null){
 					System.out.println("Person not registered.");
 									
 					String person = console.readLine("Please enter in the New person's name, height, weight, eyecolor, hair color, address, gender, birthday (mm/dd/yyyy): ");
@@ -414,8 +416,9 @@ public class RunRegistration {
 										
 				}else if(dataManager.licenseRegistered(driverSIN) == null){
 					throw new Exception("Error occured quering database for this person");
-				}else if(dataManager.licenseRegistered(driverSIN) != null){
-					throw new Exception("This person is already registered!");
+					
+				}else if(!(dataManager.licenseRegistered(driverSIN).equals(" "))){
+					throw new Exception("This person already registered for a license!");
 				}
 				
 				String license_no = console.readLine("Please enter the license number: ");
@@ -480,7 +483,7 @@ public class RunRegistration {
 		while(true){
 			try{
 				System.out.println("You are now in the Search Menu: to return to Main Menu enter init any time.");
-				String searchMenuRequest = console.readLine("To query about a person, enter person, To query about a vehicle, enter vehicle");
+				String searchMenuRequest = console.readLine("To query about a person, enter person, To query about a vehicle, enter vehicle: ");
 				
 				if(searchMenuRequest.toLowerCase().trim().equals("init")){
 					return;
@@ -505,7 +508,7 @@ public class RunRegistration {
 	private static void vehicleSearch() {
 		try{
 			System.out.println("You are in the Vehicle Search Menu. To return to Search Menu, enter search");
-			String query = console.readLine("Please enter a vehicle's serial number");
+			String query = console.readLine("Please enter a vehicle's serial number: ");
 			
 			if(query.toLowerCase().trim().equals("search")){
 				return;
@@ -529,7 +532,7 @@ public class RunRegistration {
 	private static void personSearch() {
 		try{
 			System.out.println("You are in the Person Search Menu. To return to Search Menu, enter search");
-			String query = console.readLine("Please enter a name or license number.");
+			String query = console.readLine("Please enter a name, license number or SIN. ");
 			
 			if(query.toLowerCase().trim().equals("search")){
 				return;
@@ -543,7 +546,7 @@ public class RunRegistration {
 				}
 			}
 			else{
-				throw new Exception("The person searched is not registered");
+				throw new Exception("The person searched is not registered or is missing data from at least one of the following: Violation records, License records or Driver Condition records");
 			}	
 		}catch(Exception e){
 			System.err.println("exception raised in searching people");
