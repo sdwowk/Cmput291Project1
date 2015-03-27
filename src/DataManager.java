@@ -457,6 +457,7 @@ public class DataManager {
 				while(results.next()){
 					result.add(String.valueOf(results.getInt(1)) + "," + results.getString(2) + "," + results.getString(3) + "," + results.getString(4) + "," + results.getString(5) + "," + results.getDate(6).toString() + "," + results.getString(7) + "," + results.getString(8));
 				}
+			
 				return result;
 			}
 			
@@ -473,14 +474,18 @@ public class DataManager {
 				result.add(personRegistered(person).get(0) + "," + licenseRegistered(person) + "," + getCondition(licenseRegistered(person).split(",")[0]));
 			
 			}
+			//If there are multiple names we just return the information in result
 			if(persons.size() > 1){
 				return result;
 			}else{
+				//Even if one name exists there will be nothing in results and the proper information is returned
+				
 				ArrayList<String> licenseResult = new ArrayList<String>();
+				
 				//If a driver license was entered only one person is in list result
 				String licenseString = result.get(0);
 				while(results.next()){
-					licenseString = licenseString + "," + String.valueOf(results.getInt(1)) + "," + results.getString(2) + "," + results.getString(3) + "," + results.getString(4) + "," + results.getString(5) + "," + results.getDate(6).toString() + "," + results.getString(7) + "," + results.getString(8);
+					licenseString = licenseString + "," + "\n" +  "Violation:" + String.valueOf(results.getInt(1)) + "," + results.getString(2) + "," + results.getString(3) + "," + results.getString(4) + "," + results.getString(5) + "," + results.getDate(6).toString() + "," + results.getString(7) + "," + results.getString(8);
 				}
 				licenseResult.add(licenseString);
 				return licenseResult;

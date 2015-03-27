@@ -2,8 +2,6 @@ import java.io.Console;
 import java.util.ArrayList;
 import java.util.List;
 
-import oracle.net.aso.q;
-
 
 public class RunRegistration {
 	/**
@@ -30,7 +28,7 @@ public class RunRegistration {
 
 		//Initialize database and data manager
 		dataManager = DataManager.getInstance("init");
-		//dataManager.initDatabase();
+		dataManager.initDatabase();
 		
 		//List of available menu options
 		listCommands.add("search");
