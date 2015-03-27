@@ -425,12 +425,16 @@ public class DataManager {
 
 	public ArrayList<String> personSearch(String query) {
 		try{
+			
 			ArrayList<String> result = new ArrayList<String>();
-			PreparedStatement personStatement = con.prepareStatement("SELECT sin FROM people WHERE name = ?");
+			
+			//Query should bring back all the SIN numbers of either a driver's license entered or a name entered
+			PreparedStatement personStatement = con.prepareStatement("SELECT sin FROM people p, drive_licence d WHERE p.name = ? OR d.licence_no + ?");
 			
 			personStatement.clearParameters();
 			
 			personStatement.setString(1, query);
+			personStatement.setString(2, query);
 			
 			ResultSet personResults = personStatement.executeQuery();
 			ArrayList<String> persons = new ArrayList<String>();
@@ -438,25 +442,50 @@ public class DataManager {
 				persons.add(personResults.getString(1));
 			}
 			
-			
+			//If a SIN was entered this should be true, need to grab violation information from person
 			if(persons.isEmpty()){
-				PreparedStatement licenseStatement = con.prepareStatement("SELECT sin FROM drive_licence WHERE licence_no = ?");
+				//Add the license numbers for the SIN
+				persons.add(licenseRegistered(query).split(",")[0].trim());				
 				
-				personStatement.clearParameters();
+				PreparedStatement sinStmt = con.prepareStatement("SELECT * FROM ticket WHERE violator_no = ?");
 				
-				personStatement.setString(1, query);
+				sinStmt.clearParameters();
 				
-				ResultSet licResults = licenseStatement.executeQuery();
-				ArrayList<String> licenses = new ArrayList<String>();
-				while(licResults.next()){
-					licenses.add(licResults.getString(1));
+				sinStmt.setString(1, persons.get(0));
+				
+				ResultSet results = sinStmt.executeQuery();
+				while(results.next()){
+					result.add(String.valueOf(results.getInt(1)) + "," + results.getString(2) + "," + results.getString(3) + "," + results.getString(4) + "," + results.getString(5) + "," + results.getDate(6).toString() + "," + results.getString(7) + "," + results.getString(8));
 				}
-			}else{
-				for(String person : persons){
-					result.add(personRegistered(person).get(0) + "," + licenseRegistered(person) + "," + getCondition(licenseRegistered(person).split(",")[0]));
-				}
+				return result;
 			}
-			return result;
+			
+			PreparedStatement violationStmt = con.prepareStatement("SELECT * FROM ticket WHERE violator_no = ?");
+			
+			violationStmt.clearParameters();
+			
+			violationStmt.setString(1, query);
+			
+			ResultSet results = violationStmt.executeQuery();
+		
+			
+			for(String person : persons){
+				result.add(personRegistered(person).get(0) + "," + licenseRegistered(person) + "," + getCondition(licenseRegistered(person).split(",")[0]));
+			
+			}
+			if(persons.size() > 1){
+				return result;
+			}else{
+				ArrayList<String> licenseResult = new ArrayList<String>();
+				//If a driver license was entered only one person is in list result
+				String licenseString = result.get(0);
+				while(results.next()){
+					licenseString = licenseString + "," + String.valueOf(results.getInt(1)) + "," + results.getString(2) + "," + results.getString(3) + "," + results.getString(4) + "," + results.getString(5) + "," + results.getDate(6).toString() + "," + results.getString(7) + "," + results.getString(8);
+				}
+				licenseResult.add(licenseString);
+				return licenseResult;
+			}
+			
 		}catch(Exception e){
 			System.err.println("Error while searching people.");
 			System.err.println(e.toString());
