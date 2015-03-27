@@ -2,6 +2,8 @@ import java.io.Console;
 import java.util.ArrayList;
 import java.util.List;
 
+import oracle.net.aso.q;
+
 
 public class RunRegistration {
 	/**
@@ -176,7 +178,7 @@ public class RunRegistration {
 					if(!execute){
 						throw new Exception("Error adding owner to database");
 					}
-					execute = dataManager.addVehicleType(Owner.split(",")[5], vType);
+					execute = dataManager.addVehicleType(Integer.valueOf(Vehicle.split(",")[5]), vType);
 					if(!execute){
 						throw new Exception("Error adding vehicle type to database");
 					}
@@ -390,7 +392,7 @@ public class RunRegistration {
 				if(driverSIN.toLowerCase().equals("init")){
 					return;
 				}
-				else if(dataManager.personRegistered(driverSIN) == null){
+				else if(dataManager.personRegistered(driverSIN).equals(" ")){
 					System.out.println("Person not registered.");
 									
 					String person = console.readLine("Please enter in the New person's name, height, weight, eyecolor, hair color, address, gender, birthday (mm/dd/yyyy): ");
@@ -412,8 +414,10 @@ public class RunRegistration {
 						throw new Exception("Error adding new person to Database");
 					}
 										
+				}else if(dataManager.licenseRegistered(driverSIN) == null){
+					throw new Exception("Error occured quering database for this person");
 				}else if(dataManager.licenseRegistered(driverSIN) != null){
-					throw new Exception("Driver's license already issued to this person");
+					throw new Exception("This person is already registered!");
 				}
 				
 				String license_no = console.readLine("Please enter the license number: ");
@@ -478,20 +482,55 @@ public class RunRegistration {
 		while(true){
 			try{
 				System.out.println("You are now in the Search Menu: to return to Main Menu enter init any time.");
-				String searchRequest = console.readLine("Please enter in a name or license number");
+				String searchMenuRequest = console.readLine("To query about a person, enter person, To query about a vehicle, enter vehicle");
 				
-				if(searchRequest.toLowerCase().equals("init")){
+				if(searchMenuRequest.toLowerCase().trim().equals("init")){
 					return;
+				}else if(searchMenuRequest.toLowerCase().trim().equals("person")){
+					personSearch();
+				}else if(searchMenuRequest.toLowerCase().trim().equals("vehicle")){
+					vehicleSearch();
 				}else{
-					dataManager.search(searchRequest);
+					throw new Exception("Input could not be understood");
 				}
 				
 			}catch(Exception e){
 				System.err.println("exception raised in search menu");
+				System.err.println(e.toString());
 			}
 		}
 		
 		
+	}
+
+
+	private static void vehicleSearch() {
+		try{
+			
+		}catch(Exception e){
+			System.err.println("exception raised in searching vehicles");
+			System.err.println(e.toString());
+		}
+	}
+
+
+	private static void personSearch() {
+		try{
+			System.out.println("You are in the Person Search Menu. To return to Search Menu, enter search");
+			String query = console.readLine("Please enter a name or license number.");
+			
+			if(query.toLowerCase().trim().equals("search")){
+				return;
+			}
+			
+			ArrayList<String> results = dataManager.personSearch(query);
+			for(String result : results){
+				System.out.println(result);
+			}
+		}catch(Exception e){
+			System.err.println("exception raised in searching people");
+			System.err.println(e.toString());
+		}
 	}
 
 

@@ -6,6 +6,7 @@ import java.sql.Date;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 
@@ -59,13 +60,30 @@ public class DataManager {
 		
 	}
 
-	public void search(String searchRequest) {
+	public ArrayList<String> personRegistered(String licOwner) {
+		try{
+			PreparedStatement peopleStmt = con.prepareStatement("SELECT name, addr, birthday FROM people WHERE sin = ?");
+			
+			peopleStmt.clearParameters();
+			
+			peopleStmt.setString(1, licOwner);
+			
+			ResultSet registered = peopleStmt.executeQuery();
+			
+			ArrayList<String> result = new ArrayList<String>();
+			while(registered.next()){
+				result.add(registered.getString(1) + "," + registered.getString(2) + "," + registered.getDate(3).toString());
+			}
+			if(result.isEmpty()){
+				return null;
+			}
+			return result;
+		}catch(Exception e){
+			System.err.println("Error finding registered person");
+			System.err.println(e.toString());
+			return null;
+		}
 		
-	}
-
-	public String personRegistered(String licOwner) {
-
-		return null;
 	}
 
 	public boolean addPerson(String owner) {
@@ -128,13 +146,48 @@ public class DataManager {
 	}
 
 	public boolean isVehicleRegistered(String vehicleInfo) {
-		// TODO Auto-generated method stub
-		return false;
+		try{
+			PreparedStatement stmt = con.prepareStatement("SELECT COUNT(*) FROM vehicle WHERE serial_no = ?");
+			
+			stmt.clearParameters();
+			
+			stmt.setString(1, vehicleInfo);
+			
+			ResultSet result = stmt.executeQuery();
+			while(result.next()){
+				return true;
+			}
+			
+			return false;
+		}catch(Exception e){
+			return false;
+		}
 	}
 
 	public ArrayList<String> getOwnershipInfo(String vehicleInfo) {
-		// TODO Auto-generated method stub
-		return null;
+		try{
+			ArrayList<String> result = new ArrayList<String>();
+			PreparedStatement stmt = con.prepareStatement("SELECT * FROM owner WHERE vehicle_id = ?");
+			
+			stmt.clearParameters();
+			
+			stmt.setString(1, vehicleInfo);
+			
+			ResultSet response = stmt.executeQuery();
+			while(response.next()){
+				result.add(response.getString(1) + "," + response.getString(2) + "," + response.getString(3));
+			}
+			
+			if(result.isEmpty()){
+				return null;
+			}
+			
+			return result;
+		}catch(Exception e){
+			System.err.println("Error while getting owner information from database");
+			System.err.println(e.toString());
+			return null;
+		}
 	}
 
 	public boolean removeOwners(ArrayList<String> ownerInfo) {
@@ -214,8 +267,26 @@ public class DataManager {
 	}
 
 	public String licenseRegistered(String driverSIN) {
-		// TODO Auto-generated method stub
-		return null;
+		try{
+			PreparedStatement stmt = con.prepareStatement("SELECT license_no, class FROM drive_license WHERE sin = ?");
+			
+			stmt.clearParameters();
+			
+			stmt.setString(1, driverSIN);
+			
+			String result = " ";
+
+			ResultSet response = stmt.executeQuery();
+			if(response.next()){
+				result = response.getString(1) + "," + response.getString(2);
+			}
+
+			return result;
+		}catch(Exception e){
+			System.err.println("Error while retrieving license information from database");
+			System.err.println(e.toString());
+			return null;
+		}
 	}
 
 	public boolean addLicense(String licenseInfo) {
@@ -282,8 +353,16 @@ public class DataManager {
 		
 	}
 
-	public boolean addVehicleType(String string, String vType) {
+	public boolean addVehicleType(Integer integer, String vType) {
 		try{
+			PreparedStatement stmt = con.prepareStatement("insert into vehicle_type values (?, ?)");
+			
+			stmt.clearParameters();
+			
+			stmt.setInt(1, integer);
+			stmt.setString(2, vType);
+			
+			stmt.executeUpdate();
 			return true;
 		}catch(Exception e){
 			System.err.println("Error adding vehicle type");
@@ -294,6 +373,30 @@ public class DataManager {
 
 	public boolean addTicket(Integer ticketNo, String ticketInfo) {
 		try{
+			String[] stmtParts = ticketInfo.split(",");
+			PreparedStatement stmt = con.prepareStatement("insert into ticket values(?, ?, ?, ?, ?, ?, ?, ?)");
+			
+			stmt.clearParameters();
+			
+			stmt.setInt(1, ticketNo);
+			stmt.setString(2, stmtParts[0].trim());
+			stmt.setString(3, stmtParts[1].trim());
+			stmt.setString(4, stmtParts[2].trim());
+			stmt.setString(5, stmtParts[3].trim());
+			
+			String[] dateParts = stmtParts[4].trim().split("/");
+			if(dateParts.length != 3){
+				throw new Exception("Date improperly input make sure it is in mm/dd/yyyy format and that the values are valid");
+			}
+			
+			java.sql.Date date = new Date(Integer.valueOf(dateParts[2].trim()), Integer.valueOf(dateParts[0].trim()), Integer.valueOf(dateParts[1].trim()));
+			stmt.setDate(6, date);
+			
+			stmt.setString(7, stmtParts[5].trim());
+			stmt.setString(8, stmtParts[6].trim());
+			
+			stmt.executeUpdate();
+			
 			return true;
 		}catch(Exception e){
 			System.err.println("Error adding ticket");
@@ -304,12 +407,25 @@ public class DataManager {
 
 	public boolean addTicketType(String ticketType, Double amount) {
 		try{
+			PreparedStatement stmt = con.prepareStatement("insert into ticket_type values(?,?)");
+			
+			stmt.clearParameters();
+			
+			stmt.setString(1, ticketType);
+			stmt.setBigDecimal(2, BigDecimal.valueOf(amount));
+			
+			stmt.executeUpdate();
 			return true;
 		}catch(Exception e){
 			System.err.println("Error adding ticket type");
 			System.err.println(e.toString());
 			return false;
 		}		
+	}
+
+	public ArrayList<String> personSearch(String query) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 
