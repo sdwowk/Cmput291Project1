@@ -459,7 +459,7 @@ public class DataManager {
 			//If a SIN was entered this should be true, need to grab violation information from person
 			if(persons.isEmpty()){
 				//Add the license numbers for the SIN
-				persons.add(licenseRegistered(query).split(",")[0].trim());				
+				persons.add(query.trim());				
 				
 				PreparedStatement sinStmt = con.prepareStatement("SELECT * FROM ticket WHERE LTRIM(RTRIM(violator_no)) = ?");
 				
@@ -479,9 +479,9 @@ public class DataManager {
 			
 			violationStmt.clearParameters();
 			
-			violationStmt.setString(1, query.trim());
+			violationStmt.setString(1, persons.get(0).trim());
 			
-			ResultSet results = violationStmt.executeQuery();
+			ResultSet vResults = violationStmt.executeQuery();
 		
 			
 			for(String person : persons){
@@ -498,8 +498,8 @@ public class DataManager {
 				
 				//If a driver license was entered only one person is in list result
 				String licenseString = result.get(0);
-				while(results.next()){
-					licenseString = licenseString + "," + "\n" +  "Violation:" + String.valueOf(results.getInt(1)) + "," + results.getString(2) + "," + results.getString(3) + "," + results.getString(4) + "," + results.getString(5) + "," + results.getDate(6).toString() + "," + results.getString(7) + "," + results.getString(8);
+				while(vResults.next()){
+					licenseString = licenseString + "," + "\n" +  "Violation:" + String.valueOf(vResults.getInt(1)) + "," + vResults.getString(2) + "," + vResults.getString(3) + "," + vResults.getString(4) + "," + vResults.getString(5) + "," + vResults.getDate(6).toString() + "," + vResults.getString(7) + "," + vResults.getString(8);
 				}
 				licenseResult.add(licenseString);
 				return licenseResult;

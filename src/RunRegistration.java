@@ -8,7 +8,7 @@ public class RunRegistration {
 	 * 
 	 */
 	private static Console console; 
-	
+	private static Integer intID;
 	private static DataManager dataManager;
 	private final static List<String> listCommands = new ArrayList<String>();
 	
@@ -23,6 +23,7 @@ public class RunRegistration {
 		}
 
 
+		intID = ((Double)(Math.random() * Math.pow(10, 15))).intValue();
 
 
 
@@ -163,10 +164,13 @@ public class RunRegistration {
 				String vType = console.readLine("Please enter the vehicle's type: ");
 				if(vType.toLowerCase().trim().equals("init")){
 					return;
+					
 				}else if(Vehicle.split(",").length != 6){
 					throw new Exception("Input invalid. Make sure to separate each entry with a comma!");
+					
 				}else if(dataManager.isVehicleRegistered(Vehicle.split(",")[0])){
 					throw new Exception("This Vehicle serial no. is already registered. Please enter correct data.");
+					
 				}
 				else{
 					boolean execute = dataManager.addVehicle(Vehicle);
@@ -174,10 +178,12 @@ public class RunRegistration {
 						throw new Exception("Error adding vehicle to database");
 					}
 					String ownerInfo = Owner.split(",")[0] + "," + Vehicle.split(",")[0] + "," + ownerIsPrime;
+					
 					execute = dataManager.addOwnership(ownerInfo);
 					if(!execute){
 						throw new Exception("Error adding owner to database");
 					}
+					
 					execute = dataManager.addVehicleType(Integer.valueOf(Vehicle.split(",")[5]), vType);
 					if(!execute){
 						throw new Exception("Error adding vehicle type to database");
@@ -238,6 +244,8 @@ public class RunRegistration {
 					}
 					
 					
+					addSecondaryOwners(Vehicle.split(",")[0]);
+					
 				}
 				
 			}catch(Exception e){
@@ -272,11 +280,13 @@ public class RunRegistration {
 							accused = ownerInfo.get(i).split(",")[0];
 						}
 					}
+				}else if(dataManager.personRegistered(accused) == null){
+					throw new Exception("No person exists with this SIN!");
 				}
 				if(!dataManager.isVehicleRegistered(vehicleInfo)){
 					throw new Exception("Vehicle is not registered please register vehicle in New Vehicle Registration Menu.");
 				}
-				Integer ticketNo = ((Double)(Math.random() * Math.pow(10, 15))).intValue();
+				intID = intID - 1;
 				
 				String ticketType = console.readLine("Please enter the ticket type: ");
 				if(ticketType.toLowerCase().trim().equals("init")){
@@ -302,7 +312,7 @@ public class RunRegistration {
 				
 				String ticketInfo = accused + "," + vehicleInfo + "," + officerNo + "," + ticketType + "," + ticketDate + "," + place + "," + description;
 				
-				boolean execute = dataManager.addTicket(ticketNo, ticketInfo);
+				boolean execute = dataManager.addTicket(intID, ticketInfo);
 				if(!execute){
 					throw new Exception("Error adding ticket to database");
 				}
@@ -322,6 +332,39 @@ public class RunRegistration {
 				System.err.println("Exception raised in Violation Menu");
 				System.err.println(e.toString());
 			}
+		}
+	}
+	
+	private static void addSecondaryOwners(String vehicleInfo){
+		boolean addSecondary = false;
+		try{
+			String addNewOwner = console.readLine("Would you like to add a new owner? (y or n): ");
+			if(addNewOwner.equals("y")){
+				addSecondary = true;
+			}
+			while(addSecondary){
+				String secondOwner = console.readLine("Please enter the second owner's SIN number: ");
+				if(dataManager.personRegistered(secondOwner) == null){
+					throw new Exception("Second Owner is not registered");
+				}
+				String primary = console.readLine("Is this owner the primary owner? (y or n): ");
+				
+				String ownInfo = secondOwner.trim() + "," + vehicleInfo.trim() + "," + primary.trim();
+				boolean execute = dataManager.addOwnership(ownInfo);
+				if(!execute){
+					throw new Exception("Error adding owner to database");
+				}
+				
+				addNewOwner = console.readLine("Would you like to add a new owner? (y or n): ");
+				if(addNewOwner.trim().toCharArray().equals("y")){
+					addSecondary = true;
+				}else{
+					addSecondary = false;
+				}
+			}
+		}catch(Exception e){
+			System.err.println("Error adding second owner");
+			System.err.println(e.toString());
 		}
 	}
 
@@ -410,9 +453,9 @@ public class RunRegistration {
 					throw new Exception("Error removing owner's from database");
 				}
 				
-				Integer transactionID = ((Double)(Math.random() * Math.pow(10, 15))).intValue();
+				intID = intID - 1;
 					
-				transactionInfo = transactionID.toString() + ", " + sellerInfo + ", " + buyerInfo + "," + vehicleInfo + "," + transactionInfo;
+				transactionInfo = intID.toString() + ", " + sellerInfo + ", " + buyerInfo + "," + vehicleInfo + "," + transactionInfo;
 				execute = dataManager.addTransaction(transactionInfo);
 				if(!execute){
 					throw new Exception("Error in adding Auto Sale to database");
@@ -428,6 +471,8 @@ public class RunRegistration {
 				if(!execute){
 					throw new Exception("Error adding owner to database");
 				}
+				
+				addSecondaryOwners(vehicleInfo);
 				
 			}catch(Exception e){
 				System.err.println("Exception raised in Auto Transaction");
