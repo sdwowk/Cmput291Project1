@@ -197,7 +197,7 @@ public class DataManager {
 	public boolean removeOwners(ArrayList<String> ownerInfo) {
 		try{
 			
-			PreparedStatement stmt = con.prepareStatement("delete from owner where LTRIM(RTRIM(owner_id = ?)) AND LTRIM(RTRIM(vehicle_id)) = ?");
+			PreparedStatement stmt = con.prepareStatement("delete from owner where LTRIM(RTRIM(owner_id)) = ? AND LTRIM(RTRIM(vehicle_id)) = ?");
 			String[] stmtParts;
 			for(String owner : ownerInfo){
 				stmtParts = owner.split(",");
@@ -219,7 +219,7 @@ public class DataManager {
 
 	public boolean addTransaction(String transactionInfo) {
 		try{
-			PreparedStatement stmt = con.prepareStatement("insert into auot_sale values (?, ?, ?, ?, ?, ?)");
+			PreparedStatement stmt = con.prepareStatement("insert into auto_sale values (?, ?, ?, ?, ?, ?)");
 			String[] stmtParts = transactionInfo.split(",");
 			
 			stmt.clearParameters();
@@ -469,7 +469,7 @@ public class DataManager {
 				
 				ResultSet results = sinStmt.executeQuery();
 				while(results.next()){
-					result.add(String.valueOf(results.getInt(1)) + "," + results.getString(2) + "," + results.getString(3) + "," + results.getString(4) + "," + results.getString(5) + "," + results.getDate(6).toString() + "," + results.getString(7) + "," + results.getString(8));
+					result.add("\n" +  "Violation:" + String.valueOf(results.getInt(1)) + "," + results.getString(2) + "," + results.getString(3) + "," + results.getString(4) + "," + results.getString(5) + "," + results.getDate(6).toString() + "," + results.getString(7) + "," + results.getString(8));
 				}
 			
 				return result;
