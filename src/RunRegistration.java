@@ -8,7 +8,7 @@ public class RunRegistration {
 	 * 
 	 */
 	private static Console console; 
-	
+	private static Integer intID;
 	private static DataManager dataManager;
 	private final static List<String> listCommands = new ArrayList<String>();
 	
@@ -23,6 +23,7 @@ public class RunRegistration {
 		}
 
 
+		intID = ((Double)(Math.random() * Math.pow(10, 15))).intValue();
 
 
 
@@ -217,11 +218,13 @@ public class RunRegistration {
 							accused = ownerInfo.get(i).split(",")[0];
 						}
 					}
+				}else if(dataManager.personRegistered(accused) == null){
+					throw new Exception("No person exists with this SIN!");
 				}
 				if(!dataManager.isVehicleRegistered(vehicleInfo)){
 					throw new Exception("Vehicle is not registered please register vehicle in New Vehicle Registration Menu.");
 				}
-				Integer ticketNo = ((Double)(Math.random() * Math.pow(10, 15))).intValue();
+				intID = intID - 1;
 				
 				String ticketType = console.readLine("Please enter the ticket type: ");
 				if(ticketType.toLowerCase().trim().equals("init")){
@@ -247,7 +250,7 @@ public class RunRegistration {
 				
 				String ticketInfo = accused + "," + vehicleInfo + "," + officerNo + "," + ticketType + "," + ticketDate + "," + place + "," + description;
 				
-				boolean execute = dataManager.addTicket(ticketNo, ticketInfo);
+				boolean execute = dataManager.addTicket(intID, ticketInfo);
 				if(!execute){
 					throw new Exception("Error adding ticket to database");
 				}
@@ -355,9 +358,9 @@ public class RunRegistration {
 					throw new Exception("Error removing owner's from database");
 				}
 				
-				Integer transactionID = ((Double)(Math.random() * Math.pow(10, 15))).intValue();
+				intID = intID - 1;
 					
-				transactionInfo = transactionID.toString() + ", " + sellerInfo + ", " + buyerInfo + "," + vehicleInfo + "," + transactionInfo;
+				transactionInfo = intID.toString() + ", " + sellerInfo + ", " + buyerInfo + "," + vehicleInfo + "," + transactionInfo;
 				execute = dataManager.addTransaction(transactionInfo);
 				if(!execute){
 					throw new Exception("Error in adding Auto Sale to database");
