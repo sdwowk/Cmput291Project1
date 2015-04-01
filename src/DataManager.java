@@ -389,7 +389,7 @@ public class DataManager {
 			stmt.setString(2, stmtParts[0].trim());
 			stmt.setString(3, stmtParts[1].trim());
 			stmt.setString(4, stmtParts[2].trim());
-			stmt.setString(5, stmtParts[3].trim());
+			stmt.setString(5, stmtParts[3]);
 			
 			String[] dateParts = stmtParts[4].trim().split("/");
 			if(dateParts.length != 3){

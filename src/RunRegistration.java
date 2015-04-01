@@ -22,7 +22,6 @@ public class RunRegistration {
 			System.err.println("Console is null program will not work");
 		}
 
-
 		intID = ((Double)(Math.random() * Math.pow(10, 15))).intValue();
 
 
@@ -225,7 +224,7 @@ public class RunRegistration {
 					ArrayList<String> ownerInfo = dataManager.getOwnershipInfo(vehicleInfo);
 					for(int i = 0; i < ownerInfo.size(); i++){
 						if(isPrimeOwner(ownerInfo.get(i))){
-							accused = ownerInfo.get(i).split(",")[0];
+							accused = ownerInfo.get(i).split(",")[0].trim();
 						}
 					}
 				}else if(dataManager.personRegistered(accused) == null){
@@ -264,18 +263,7 @@ public class RunRegistration {
 				if(!execute){
 					throw new Exception("Error adding ticket to database");
 				}
-				String fine = console.readLine("Please enter the ticket fine: ");
-				if(fine.toLowerCase().trim().equals("init")){
-					return;
-				}else if(fine.split(".")[1].length() > 2 || fine.split(".").length != 2){
-					throw new Exception("Fine improperly entered, make sure there is only two decimal places and that there is only one decima");
-				}
-				
-				Double amount = Double.valueOf(fine);
-				execute = dataManager.addTicketType(ticketType, amount);
-				if(!execute){
-					throw new Exception("Error adding ticket type to database");
-				}
+
 			}catch(Exception e){
 				System.err.println("Exception raised in Violation Menu");
 				System.err.println(e.toString());
