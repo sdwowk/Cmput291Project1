@@ -182,6 +182,61 @@ public class RunRegistration {
 					if(!execute){
 						throw new Exception("Error adding vehicle type to database");
 					}
+					String secondOwner = console.readLine("Would you like to add a secondary owner? (y or n): ");
+					if(secondOwner.equals("init")){
+						return;
+					}else if(secondOwner.toLowerCase().trim().equals("y")){
+						String ownerNo = console.readLine("Please enter the secondary owner's SIN: ");
+						
+						if(secondOwner.toLowerCase().trim().equals("init")){
+							return;
+						
+						}else if(dataManager.personRegistered(secondOwner) == null){
+							System.out.println("Secondary owner not registered");
+							
+							String person = console.readLine("Please enter in the New person's name, height, weight, eyecolor, hair color, address, gender, birthday (mm/dd/yyyy): ");
+							
+							if(person.toLowerCase().equals("init")){
+								return;
+							}
+							
+							person = secondOwner + "," + person;
+							if(person.split(",").length != 9){
+								throw new Exception("Input invalid. Make sure to separate each entry with a comma!");
+								
+							}						
+							
+							execute = dataManager.addPerson(person);
+							if(execute){
+							
+							}else{
+								throw new Exception("Error adding new person to Database");
+							}
+						}
+						
+						String secOwnerIsPrime = console.readLine("Is the owner the primary owner? (y or n): ");
+						
+						if(secOwnerIsPrime.toLowerCase().contains("y")){
+							ownerIsPrime = "y";
+						}else if(ownerIsPrime.toLowerCase().equals("init")){
+							return;
+						}
+						else{
+							secOwnerIsPrime = "n";
+						}
+						
+						String secOwnerInfo = ownerNo + "," + Vehicle.split(",")[0] + "," + secOwnerIsPrime;
+						execute = dataManager.addOwnership(secOwnerInfo);
+						if(!execute){
+							throw new Exception("Error adding second owner to database");
+						}
+						
+					}else if(secondOwner.toLowerCase().trim().equals("n")){
+						
+					}else{
+						System.out.println("Could not understand the input returning to New Vehicle Registration");
+					}
+					
 					
 				}
 				
@@ -418,7 +473,7 @@ public class RunRegistration {
 					throw new Exception("Error occured quering database for this person");
 					
 				}else if(!(dataManager.licenseRegistered(driverSIN).equals(" "))){
-					throw new Exception("This person already registered for a license!");
+					throw new Exception("This person has already registered for a license!");
 				}
 				
 				String license_no = console.readLine("Please enter the license number: ");

@@ -72,13 +72,15 @@ public class DataManager {
 			
 			ArrayList<String> result = new ArrayList<String>();
 			while(registered.next()){
-				System.out.println("GOOD");
+			
 				result.add(registered.getString(1) + "," + registered.getString(2) + "," + registered.getDate(3).toString());
+			
 			}
+
 			if(result.isEmpty()){
-				System.out.println("Bad");
 				return null;
 			}
+			
 			return result;
 		}catch(Exception e){
 			System.err.println("Error finding registered person");
@@ -280,7 +282,7 @@ public class DataManager {
 
 			ResultSet response = stmt.executeQuery();
 			if(response.next()){
-				result = response.getString(1) + "," + response.getString(2) + "," + response.getDate(3).toString();
+				result = response.getString(1).trim() + "," + response.getString(2) + "," + response.getDate(3).toString();
 			}
 
 			return result;
